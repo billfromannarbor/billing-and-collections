@@ -8,10 +8,12 @@ import org.aaa.billingandcollections.model.entities.Payment;
 import org.aaa.billingandcollections.repository.PaymentRepository;
 import org.aaa.billingandcollections.repository.PremiumScheduleItemRepository;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -38,6 +40,12 @@ public class PaymentService {
                 .build();
 
         paymentRepository.save(payment);
+
+        log.info("Created payment {} for policy {} and schedule item {} with status {}",
+                payment.getPaymentId(),
+                payment.getPolicyId(),
+                payment.getScheduleItemId(),
+                payment.getStatus());
 
         return new CreatePaymentResponse(payment.getPaymentId(), payment.getStatus());
     }

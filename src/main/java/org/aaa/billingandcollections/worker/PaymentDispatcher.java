@@ -28,7 +28,9 @@ public class PaymentDispatcher {
             payment.setEnqueued(true);
             paymentRepository.save(payment);
 
-            log.info("Dispatched payment {} to queue", payment.getPaymentId());
+            log.info("Dispatched payment {} to queue with status {}",
+                    payment.getPaymentId(),
+                    payment.getStatus());
         }
     }
 }
