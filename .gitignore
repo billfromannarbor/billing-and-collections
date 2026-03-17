@@ -5,6 +5,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### docs ###
+docs/*.png
+docs/*.key
+
 ### STS ###
 .apt_generated
 .classpath
