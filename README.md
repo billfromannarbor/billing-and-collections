@@ -165,7 +165,7 @@ Validates:
 
 - Replace in-memory storage with database
 - Use Kafka or RabbitMQ instead of in-memory queue
-- Implement reliability for calling external payment processor
+- Implement resilience for calls against external payment processor
 - Add pagination and filtering to GET /policies/delinquent
 - Add authentication/authorization
 - Externalize configuration
