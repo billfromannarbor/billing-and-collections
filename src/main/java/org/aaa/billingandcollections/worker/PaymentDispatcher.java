@@ -19,7 +19,7 @@ public class PaymentDispatcher {
     private final PaymentRepository paymentRepository;
     private final PaymentQueue paymentQueue;
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelayString = "${payment.dispatcher.fixed-delay-ms}")
     public void dispatchEligiblePayments() {
         List<Payment> eligiblePayments = paymentRepository.findReadyToDispatch(Instant.now());
 

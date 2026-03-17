@@ -35,7 +35,9 @@ class PaymentWorkerTest {
                 paymentQueue,
                 paymentRepository,
                 paymentAttemptRepository,
-                mockProcessor
+                mockProcessor,
+                2,
+                2000L
         );
     }
 

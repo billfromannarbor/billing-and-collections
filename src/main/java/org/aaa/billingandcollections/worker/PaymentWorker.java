@@ -1,6 +1,5 @@
 package org.aaa.billingandcollections.worker;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aaa.billingandcollections.model.PaymentAttemptResult;
 import org.aaa.billingandcollections.model.PaymentStatus;
@@ -11,6 +10,7 @@ import org.aaa.billingandcollections.processor.MockThirdPartyPaymentProcessor;
 import org.aaa.billingandcollections.queue.PaymentQueue;
 import org.aaa.billingandcollections.repository.PaymentAttemptRepository;
 import org.aaa.billingandcollections.repository.PaymentRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -20,17 +20,32 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class PaymentWorker {
-
-    private static final int MAX_ATTEMPTS = 2;
 
     private final PaymentQueue paymentQueue;
     private final PaymentRepository paymentRepository;
     private final PaymentAttemptRepository paymentAttemptRepository;
     private final MockThirdPartyPaymentProcessor paymentProcessor;
+    private final int maxAttempts;
+    private final long retryDelayMs;
 
-    @Scheduled(fixedDelay = 1000)
+    public PaymentWorker(
+            PaymentQueue paymentQueue,
+            PaymentRepository paymentRepository,
+            PaymentAttemptRepository paymentAttemptRepository,
+            MockThirdPartyPaymentProcessor paymentProcessor,
+            @Value("${payment.retry.max-attempts}") int maxAttempts,
+            @Value("${payment.retry.delay-ms}") long retryDelayMs
+    ) {
+        this.paymentQueue = paymentQueue;
+        this.paymentRepository = paymentRepository;
+        this.paymentAttemptRepository = paymentAttemptRepository;
+        this.paymentProcessor = paymentProcessor;
+        this.maxAttempts = maxAttempts;
+        this.retryDelayMs = retryDelayMs;
+    }
+
+    @Scheduled(fixedDelayString = "${payment.worker.fixed-delay-ms}")
     public void processNextPayment() {
         UUID paymentId = paymentQueue.poll();
 
@@ -41,11 +56,17 @@ public class PaymentWorker {
         Optional<Payment> paymentOptional = paymentRepository.findById(paymentId);
 
         if (paymentOptional.isEmpty()) {
-            log.warn("Payment {} not found", paymentId);
+            log.warn("Payment {} not found while attempting to process queue item", paymentId);
             return;
         }
 
         Payment payment = paymentOptional.get();
+
+        log.info("Processing payment {} with current status {} and attempt count {}",
+                payment.getPaymentId(),
+                payment.getStatus(),
+                payment.getAttemptCount());
+
         int attemptNumber = payment.getAttemptCount() + 1;
 
         MockPaymentProcessorResult processorResult = paymentProcessor.processPayment(paymentId);
@@ -61,6 +82,11 @@ public class PaymentWorker {
 
         paymentAttemptRepository.save(attempt);
 
+        log.info("Recorded payment attempt {} for payment {} with result {}",
+                attempt.getAttemptNumber(),
+                paymentId,
+                attempt.getResult());
+
         payment.setAttemptCount(attemptNumber);
         payment.setLastAttemptAt(Instant.now());
         payment.setEnqueued(false);
@@ -68,16 +94,26 @@ public class PaymentWorker {
         if (processorResult.result() == PaymentAttemptResult.SUCCESS) {
             payment.setStatus(PaymentStatus.SUCCEEDED);
             payment.setNextAttemptAt(null);
-            log.info("Payment {} succeeded on attempt {}", paymentId, attemptNumber);
+
+            log.info("Payment {} succeeded on attempt {}",
+                    paymentId,
+                    attemptNumber);
         } else {
-            if (attemptNumber < MAX_ATTEMPTS) {
+            if (attemptNumber < maxAttempts) {
                 payment.setStatus(PaymentStatus.RETRY_PENDING);
-                payment.setNextAttemptAt(Instant.now().plusSeconds(2));
-                log.info("Payment {} failed on attempt {}, marked for retry", paymentId, attemptNumber);
+                payment.setNextAttemptAt(Instant.now().plusMillis(retryDelayMs));
+
+                log.info("Payment {} failed on attempt {} and was marked RETRY_PENDING for retry at {}",
+                        paymentId,
+                        attemptNumber,
+                        payment.getNextAttemptAt());
             } else {
                 payment.setStatus(PaymentStatus.FAILED);
                 payment.setNextAttemptAt(null);
-                log.info("Payment {} failed on final attempt {}", paymentId, attemptNumber);
+
+                log.info("Payment {} failed on final attempt {}",
+                        paymentId,
+                        attemptNumber);
             }
         }
 
