@@ -5,3 +5,9 @@ Simple microservice simulating billing engine with:
 - Payment processing
 - Retry logic
 - Delinquency tracking
+
+## Architecture & Design
+
+See the system design document:
+
+- [Billing & Collections Design](docs/TripleALifeBillingAndPaymentsService.pdf)
