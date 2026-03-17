@@ -15,8 +15,8 @@ public class PaymentQueue {
         queue.offer(paymentId);
     }
 
-    public UUID take() throws InterruptedException {
-        return queue.take();
+    public UUID poll() {
+        return queue.poll();
     }
 
     public int size() {

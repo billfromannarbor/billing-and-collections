@@ -26,6 +26,7 @@ public class PaymentAttemptRepository {
         return attempts.values()
                 .stream()
                 .filter(a -> a.getPaymentId().equals(paymentId))
+                .sorted((a, b) -> Integer.compare(a.getAttemptNumber(), b.getAttemptNumber()))
                 .toList();
     }
 
