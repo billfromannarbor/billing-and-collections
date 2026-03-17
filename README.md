@@ -10,4 +10,4 @@ Simple microservice simulating billing engine with:
 
 See the system design document:
 
-- [Billing & Collections Design](docs/TripleALifeBillingAndPaymentsService.pdf)
+- [Billing & Collections Design](docs/billing-collections-architecture.pdf)
