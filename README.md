@@ -165,10 +165,11 @@ Validates:
 
 - Replace in-memory storage with database
 - Use Kafka or RabbitMQ instead of in-memory queue
-- Add idempotency keys
-- Implement exponential backoff
+- Implement reliability for calling external payment processor
+- Add pagination and filtering to GET /policies/delinquent
 - Add authentication/authorization
 - Externalize configuration
+- Expose actuators (health, liveness, readiness, info, metrics, loggers)
 
 ---
 
