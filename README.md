@@ -123,13 +123,13 @@ Returns policies currently marked as delinquent.
 
 App runs at:
 http://localhost:8080
-`curl localhost:8080/policies/POLICY-1001/premium-schedule`
+`curl localhost:8080/policies/POLICY-2001/premium-schedule`
 
 `curl -X POST http://localhost:8080/payments \
 -H "Content-Type: application/json" \
 -d '{
 "policyId": "POLICY-1001",
-"scheduleItemId": "c3bc470c-0107-4c8b-b017-ed1a6a541746",
+"scheduleItemId": "500c37fc-d1c6-4990-8753-1370c9b21fdc",
 "amount": 120.00
 }'`
 
