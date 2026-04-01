@@ -1,5 +1,5 @@
 Engineering Assessment – Billing & Collections Microservice
-Celia Courtright
+from Celia Courtright
 
 Objective: Assess your ability to model service-oriented architectures and write production-grade APIs for a high-availability, transaction-sensitive domain like insurance billing.
 Be prepared to present your System Design (Part 1) and parts of your code (Part 2).
