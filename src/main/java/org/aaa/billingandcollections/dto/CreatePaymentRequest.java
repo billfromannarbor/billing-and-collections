@@ -8,6 +8,12 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record CreatePaymentRequest(
+        /*
+        @Pattern(
+        regexp = "^U.*",
+        message = "policyId must start with 'U'"
+        )
+         */
         @NotBlank
         String policyId,
 

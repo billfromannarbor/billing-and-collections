@@ -57,6 +57,14 @@ class PolicyServiceTest {
                 .outstandingAmount(BigDecimal.ZERO)
                 .build());
 
+        premiumScheduleItemRepository.save(PremiumScheduleItem.builder()
+                .scheduleItemId(UUID.randomUUID())
+                .policyId("POLICY-3001")
+                .dueDate(LocalDate.now().plusDays(60))
+                .amount(new BigDecimal("55.00"))
+                .status(ScheduleItemStatus.FUTURE)
+                .build());
+
         policyService = new PolicyService(
                 premiumScheduleItemRepository,
                 policyBillingAccountRepository
@@ -69,6 +77,9 @@ class PolicyServiceTest {
 
         assertThat(schedule).isNotEmpty();
         assertThat(schedule).allMatch(item -> item.getPolicyId().equals("POLICY-1001"));
+
+        schedule = policyService.getPremiumSchedule("POLICY-3001");
+        assertThat(schedule).isNotEmpty();
     }
 
     @Test
